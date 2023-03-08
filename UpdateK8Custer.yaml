@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: CloudFormation template for pushing a new Docker image to Amazon ECR, updating the Kubernetes deployment configuration, applying the updated configuration to the cluster, monitoring the deployment, and scaling the deployment if necessary.
+
+Resources:
+  # Create an Amazon ECR repository
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: my-ecr-repository
+
+  # Push the new Docker image to the Amazon ECR repository
+  PushImage:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: my-ecr-repository
+      ImageTag: latest
+      ImageManifest: 
+
+  # Update the Kubernetes deployment configuration to use the new image
+  UpdateDeploymentConfig:
+    Type: AWS::Kubernetes::DeploymentConfig
+    Properties:
+      DeploymentConfigName: my-deployment-config
+      Image:
+        Repository: my-ecr-repository
+        Tag: latest
+
+  # Apply the updated configuration to the cluster using kubectl
+  ApplyDeploymentConfig:
+    Type: AWS::Kubernetes::DeploymentConfig
+    Properties:
+      DeploymentConfigName: my-deployment-config
+      Command: kubectl apply -f my-deployment-config.yaml
+
+  # Monitor the deployment to ensure that the new image is running correctly
+  MonitorDeployment:
+    Type: AWS::Kubernetes::DeploymentConfig
+    Properties:
+      DeploymentConfigName: my-deployment-config
+      Command: kubectl get pods --watch
+
+  # Scale the deployment to ensure that the new image is running on all nodes
+  ScaleDeployment:
+    Type: AWS::Kubernetes::DeploymentConfig
+    Properties:
+      DeploymentConfigName: my-deployment-config
+      Command: kubectl scale deployment my-deployment-config --replicas=
+      
